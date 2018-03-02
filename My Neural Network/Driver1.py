@@ -52,7 +52,7 @@ for i in range(60000):
 
 print("Finished reading MNIST data")
 
-print(NN.run(trainData[0][0], net))
+print(NN.run(trainData[0][0], net, trainData[0][1]))
 print(trainData[0][1])
 
 
