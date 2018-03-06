@@ -31,6 +31,15 @@ def sigmoid(x):
         newList.append(newSubList)
     return np.matrix(newList)
 
+def dSigmoid(x):
+    xList = x.tolist()
+    newList = []
+    for subList in xList:
+        newSubList = []
+        for item in subList:
+            newSubList.append((1 / (1 + math.exp(-item)))(1-(1 / (1 + math.exp(-item)))))
+        newList.append(newSubList)
+    return np.matrix(newList)
 """ New Net
 precondition: dimensions is an array of form (inputs, L1, L2... Ln, outputs). Length must be at least 3
 postcondition: returns list of tuples of type (weights, biases). 

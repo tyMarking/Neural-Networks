@@ -10,6 +10,12 @@ import json
 import numpy as np
 
 
+#testX = np.matrix([[1234]])
+#print(testX)
+#print(NN.sigmoid(testX))
+#testSigX = NN.sigmoid(testX)
+#print(NN.dSigmoid(testSigX))
+
 #Helper functions
 def saveToFile(net, file):
     netList = []
@@ -30,8 +36,14 @@ def loadFromFile(file):
     return matrixList
 #create the inital net
 dimensions = (728,16,16,10)
+
+
+#Which net to use
+
 #net = NN.newNet(dimensions)
 net = loadFromFile("firstNet.txt")
+
+
 #read the MNIST data
 print("Reading MNIST data")
 trainImages = gzip.open("data/train-images-idx3-ubyte.gz", 'rb')
