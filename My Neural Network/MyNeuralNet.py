@@ -87,46 +87,124 @@ def run(inputs, net, correct):
     a = net[len(net)][0]*a+net[len(net)][1]
     return a
 
-def train(inputs, net, right):
+def train(inputs, net, rights):
     
     #1: multiply weights by prev activations
     #2: apply non-linear (sigmoid or Relu)
     #3: repeat 1-2 for all layers
     #4: return last activation
     
-    #sets inputs in vertical matrix
-    a = np.reshape(inputs, (len(inputs),1))
-    a = np.matrix(a)
-    
-    #forward propigation
-    currentVals = a
-    vals = []
-    for layer in net:
-        currentVals = sigmoid(layer[0]*currentVals+layer[1])
-        vals.append(currentVals)
-    
-    finalVals = currentVals
-    #cost function for initial derivatives
-    #C =  * sum(y1-y2)^2
-    #dc/dy = -2(y-y)
-    initGrads = []
-    for i in range(finalVals):
-        if i == right:
-            y = 1
-        else:
-            y = 0
-        initGrads.append(-2*(y-finalVals[i]))
+    #final grads list (not averaged)
+    grads = [([],[])] * len(net)
+        
+    for input in inputs:
+        #sets inputs in vertical matrix
+        a = np.reshape(inputs, (len(inputs),1))
+        a = np.matrix(a)
+        
+        #forward propigation
+        currentVals = a
+        vals = []
+        for layer in net:
+            vals.append(currentVals)
+            currentVals = sigmoid(layer[0]*currentVals+layer[1])
+            
+        
+        finalVals = currentVals
+        #cost function for initial derivatives
+        #C =  * sum(y1-y2)^2
+        #dc/dy = -2(y-y)
+        initGrads = []
+        for i in range(finalVals):
+            if i == right:
+                y = 1
+            else:
+                y = 0
+            initGrads.append(-2*(y-finalVals[i]))
+        listVals = []
+        for val in vals:
+            listVals.append(val.tolist)
+            
+        #turning net into lists, ussage: weights[L][i][j]
+        weights = []
+        biases = []
+        for layer in net:
+            weights.append(layer[0].getT().tolist())
+            biases.append(layer[1].getT().tolist())
+            
+            
+        #node in layer L = i
+        #node in layer (L-1) = j
 
+        #grad structure like net but no matrix. 
+        #list[(weights,biases), (w,b), (w,b)] : Length = # of layers
+        #weights = list[i][j]
+        #biases = list[i]
+        #activations = listVals[L][i]
+        
+        #final grads list (not averaged)
+        #grads = [([],[])] * len(net)
+    
+        
+        wGrads = []
+        bGrads = []
+#        aGrads.append(initGrads)
+        prevAGrads = initGrads
+        
+        #for each a Grad in layer L+1
+        #for each node in layer L
+        #da = da(L+1) * dSigmoid
+        #for each weight dwi = da*ai(L-1)
+        #for each a(L-1) dai = da*wi
+        #for each bias db = da
+        
+        #L = layer number, from out to 0 in (in,0,1,2,out)
+        for L in reversed(range(1,len(listVals))):
+            #A grads from last layer
+            for prevAGrad in prevAGrads:
+                
+                #nodes in layer L
+                for i in range(len(listVals[L])):
+                    a = listVals[L][i]
+                    aGrad = prevAGrad * ( (1-a)*a )
+                    
 
-    grads = []
-    prevGrads = initGrads
-    for i in reversed(range(len(net))):
-        layer = net[i]
-        val = vals[i]
+                    #nodes in layer (L-1)
+                    for j in range(len(listVals[L-1])):
+                        wGrad = 
+                
+            
+            
+        
+        
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    """
+    for l in reversed(range(len(net))):
+        layer = net[l]
+        weights = layer[0]
+        bias = layer[1]
+        val = vals[l]
         ddot = dSigList(val)
         #nodes
         for i in range(ddot):
-            for j in range(net[i])
-            
+            da = []
+            dw = []
+            #connections
+            for j in range(weights):
+                da.append(ddot[i]*weights[i][j])
+                dw.append(ddot[i]*prev)
+     """
+          
     #backwards prop
     return a

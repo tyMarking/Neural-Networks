@@ -9,6 +9,7 @@ import gzip
 import json
 import numpy as np
 
+print(NN.newNet((4,2,2,1)))
 
 #Helper functions
 def saveToFile(net, file):
