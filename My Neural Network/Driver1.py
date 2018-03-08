@@ -9,7 +9,7 @@ import gzip
 import json
 import numpy as np
 
-print(NN.newNet((4,2,2,1)))
+
 
 #Helper functions
 def saveToFile(net, file):
@@ -29,6 +29,8 @@ def loadFromFile(file):
     for layer in netList:
         matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
     return matrixList
+
+
 #create the inital net
 dimensions = (728,16,16,10)
 #net = NN.newNet(dimensions)
@@ -44,7 +46,8 @@ trainImages.read(16)
 trainLabels.read(8)
 trainData = []
 
-for i in range(60000):
+#should be 60000
+for i in range(60):
     image = []
     for pixle in trainImages.read(728):
         image.append(pixle/255)
@@ -53,9 +56,19 @@ for i in range(60000):
 
 print("Finished reading MNIST data")
 
-print(NN.run(trainData[0][0], net, trainData[0][1]))
-print(trainData[0][1])
 
+
+
+
+
+
+#print(NN.run(net, trainData[0][0]))
+#print(trainData[0][1])
+
+trainSet = []
+for i in range(5):
+    trainSet.append((trainData[i]))
+print(NN.train(net,trainSet))
 
 
 saveToFile(net, "firstNet.txt")

@@ -71,23 +71,31 @@ def newNet(dimensions):
     return layers
 
 """
-precondition: inputs is a list of the first activations
+precondition: inputs is a list of the first activations, net is the net
 
 """
-def run(inputs, net, correct):
-    #1: multiply weights by prev activations
-    #2: apply non-linear (sigmoid or Relu)
-    #3: repeat 1-2 for all layers
-    #4: return last activation
+def run(net, inputs):
+
+    
     a = np.reshape(inputs, (len(inputs),1))
     a = np.matrix(a)
 
-    for i in range(net-1):
+    for i in range(len(net)):
         a = sigmoid(net[i][0]*a+net[i][1])
-    a = net[len(net)][0]*a+net[len(net)][1]
-    return a
-
-def train(inputs, net, rights):
+#    a = net[len(net)][0]*a+net[len(net)][1]
+    a = a.tolist()
+    currentMax = a[0]
+    index = 0
+    for i in range(len(a)):
+        if a[i] > currentMax:
+            currentMax = a[i]
+            index = i
+    return index
+"""
+precondition: trainSet is tuple of (inputs, correct)
+postcondition: return tuple of matrixes (weights, biases)
+"""
+def train(net, trainSet):
     
     #1: multiply weights by prev activations
     #2: apply non-linear (sigmoid or Relu)
@@ -95,11 +103,11 @@ def train(inputs, net, rights):
     #4: return last activation
     
     #final grads list (not averaged)
-    grads = [([],[])] * len(net)
+    grads = []
         
-    for input in inputs:
+    for ins in trainSet:
         #sets inputs in vertical matrix
-        a = np.reshape(inputs, (len(inputs),1))
+        a = np.reshape(ins[0], (len(ins[0]),1))
         a = np.matrix(a)
         
         #forward propigation
@@ -110,20 +118,25 @@ def train(inputs, net, rights):
             currentVals = sigmoid(layer[0]*currentVals+layer[1])
             
         
-        finalVals = currentVals
+        finalVals = []
+        for val in currentVals.tolist():
+            finalVals.append(val[0])
+        #backwards prop
+        
+        
         #cost function for initial derivatives
         #C =  * sum(y1-y2)^2
         #dc/dy = -2(y-y)
         initGrads = []
-        for i in range(finalVals):
-            if i == right:
+        for i in range(len(finalVals)):
+            if i == ins[1]:
                 y = 1
             else:
                 y = 0
             initGrads.append(-2*(y-finalVals[i]))
         listVals = []
         for val in vals:
-            listVals.append(val.tolist)
+            listVals.append(val.tolist()[0])
             
         #turning net into lists, ussage: weights[L][i][j]
         weights = []
@@ -131,23 +144,41 @@ def train(inputs, net, rights):
         for layer in net:
             weights.append(layer[0].getT().tolist())
             biases.append(layer[1].getT().tolist())
-            
-            
+        
+        
+        newB = []
+        for bias in biases:
+            bLayer = []
+            for layer in bias:
+                bLayer.append(layer[0])
+            newB.append(bLayer)
+        biases = newB
+        
+        newW = []
+        for weight in weights:
+            wLayer = []
+            for layer in weight:
+                wLayer.append(layer[0])
+            newW.append(wLayer)
+        weights = newW
+        
+        
         #node in layer L = i
         #node in layer (L-1) = j
 
         #grad structure like net but no matrix. 
         #list[(weights,biases), (w,b), (w,b)] : Length = # of layers
-        #weights = list[i][j]
-        #biases = list[i]
+        #weights = list[L][i][j]
+        #biases = list[L][i]
         #activations = listVals[L][i]
         
         #final grads list (not averaged)
         #grads = [([],[])] * len(net)
     
+        #just to get the right shape/size
         
-        wGrads = []
-        bGrads = []
+        wGrads = weights.copy()
+        bGrads = biases.copy()
 #        aGrads.append(initGrads)
         prevAGrads = initGrads
         
@@ -159,7 +190,7 @@ def train(inputs, net, rights):
         #for each bias db = da
         
         #L = layer number, from out to 0 in (in,0,1,2,out)
-        for L in reversed(range(1,len(listVals))):
+        for L in reversed(range(len(net))):
             
             aGrads = []
             #node in L
@@ -169,69 +200,45 @@ def train(inputs, net, rights):
                 for h in range(len(prevAGrads)):
                     a = listVals[L][i]
                     #this a grad = prevAGrad * connecting weight * sigmoid derivative
-                    subAGrads.append(prevAGrads[h] * weights[h][i] * ( (1-a)*a ))
+                    subAGrads.append(prevAGrads[h] * weights[L][h][i] * ( (1-a)*a ))
                     # weight grads = prevAGrad * this a
-                    wGradHI = prevAGrads[h] * a
+                    wGrads[L][h][i] = prevAGrads[h] * a
+                    
                 aGrad = sum(subAGrads)/len(subAGrads)
                 aGrads.append(aGrad)
+                bGrad = aGrad
+                bGrads[L][0][i] = bGrad
             
+            prevAGrads = aGrads
             
-            
-            
-            
-            
-            
-            
-            nextAGrads = [[]]*len(listVals[L])
-            for prevAGrad in prevAGrads:
-                
-                #nodes in layer L
-                for i in range(len(listVals[L])):
-                    a = listVals[L][i]
-                    aGrad = prevAGrad * ( (1-a)*a )
-                    nextAGrads[i].append(aGrad)
+        newBGrads = []
+        for bGrad in bGrads:
+            bLayer = []
+            for layer in bGrad:
+                bLayer.append(layer[0])
+            newBGrads.append(bLayer)
+        bGrads = newBGrads
+        grads.append((wGrads, bGrads))
 
-                    #nodes in layer (L-1)
-                    for j in range(len(listVals[L-1])):
-                        
-            #avergae nextAGrads
-            aGrads = []
-            for aGrad in nextAGrads:
-                aGrads.append(sum(aGrads)/len(aGrads))
-            
-                
-            
-            
-        
-        
+
+    #average the gradiants
+
+    #empty matrix of right sizes
+    #print(grads[0][0])
+#    print("SPACE")
+    wSum = np.matrix(grads[0][0][0])
+    bSum = np.matrix(grads[0][1][0])
+#    wSum = wSum - wSum
+#    bSum = bSum - bSum
+#    print(wSum)
+#    print(grads[0])
+    for grad in grads[1:]:
+        wSum = wSum + np.matrix(grad[0][0])
+        bSum = bSum + np.matrix(grad[1][0])
+    wAvg = wSum / len(grads)
+    bAvg = bSum / len(grads)
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    """
-    for l in reversed(range(len(net))):
-        layer = net[l]
-        weights = layer[0]
-        bias = layer[1]
-        val = vals[l]
-        ddot = dSigList(val)
-        #nodes
-        for i in range(ddot):
-            da = []
-            dw = []
-            #connections
-            for j in range(weights):
-                da.append(ddot[i]*weights[i][j])
-                dw.append(ddot[i]*prev)
-     """
+
           
-    #backwards prop
-    return a
+    
+    return (wAvg,bAvg)
