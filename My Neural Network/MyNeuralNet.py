@@ -160,18 +160,45 @@ def train(inputs, net, rights):
         
         #L = layer number, from out to 0 in (in,0,1,2,out)
         for L in reversed(range(1,len(listVals))):
-            #A grads from last layer
+            
+            aGrads = []
+            #node in L
+            for i in range(len(listVals[L])):
+                #h = node above
+                subAGrads = []
+                for h in range(len(prevAGrads)):
+                    a = listVals[L][i]
+                    #this a grad = prevAGrad * connecting weight * sigmoid derivative
+                    subAGrads.append(prevAGrads[h] * weights[h][i] * ( (1-a)*a ))
+                    # weight grads = prevAGrad * this a
+                    wGradHI = prevAGrads[h] * a
+                aGrad = sum(subAGrads)/len(subAGrads)
+                aGrads.append(aGrad)
+            
+            
+            
+            
+            
+            
+            
+            
+            nextAGrads = [[]]*len(listVals[L])
             for prevAGrad in prevAGrads:
                 
                 #nodes in layer L
                 for i in range(len(listVals[L])):
                     a = listVals[L][i]
                     aGrad = prevAGrad * ( (1-a)*a )
-                    
+                    nextAGrads[i].append(aGrad)
 
                     #nodes in layer (L-1)
                     for j in range(len(listVals[L-1])):
-                        wGrad = 
+                        
+            #avergae nextAGrads
+            aGrads = []
+            for aGrad in nextAGrads:
+                aGrads.append(sum(aGrads)/len(aGrads))
+            
                 
             
             
