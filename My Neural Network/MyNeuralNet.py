@@ -93,7 +93,7 @@ def run(net, inputs):
     return index
 """
 precondition: trainSet is tuple of (inputs, correct)
-postcondition: return tuple of matrixes (weights, biases)
+postcondition: return tuple (weights, biases) of the positive gradiant
 """
 def train(net, trainSet):
     
@@ -143,9 +143,9 @@ def train(net, trainSet):
         biases = []
         for layer in net:
             weights.append(layer[0].getT().tolist())
-            biases.append(layer[1].getT().tolist())
+            biases.append(layer[1].getT().tolist()[0])
         
-        
+        """
         newB = []
         for bias in biases:
             bLayer = []
@@ -161,7 +161,7 @@ def train(net, trainSet):
                 wLayer.append(layer[0])
             newW.append(wLayer)
         weights = newW
-        
+        """
         
         #node in layer L = i
         #node in layer (L-1) = j
@@ -207,10 +207,10 @@ def train(net, trainSet):
                 aGrad = sum(subAGrads)/len(subAGrads)
                 aGrads.append(aGrad)
                 bGrad = aGrad
-                bGrads[L][0][i] = bGrad
+                bGrads[L][i] = bGrad
             
             prevAGrads = aGrads
-            
+        """  
         newBGrads = []
         for bGrad in bGrads:
             bLayer = []
@@ -218,27 +218,58 @@ def train(net, trainSet):
                 bLayer.append(layer[0])
             newBGrads.append(bLayer)
         bGrads = newBGrads
+        """
         grads.append((wGrads, bGrads))
-
+        
 
     #average the gradiants
 
-    #empty matrix of right sizes
-    #print(grads[0][0])
-#    print("SPACE")
-    wSum = np.matrix(grads[0][0][0])
-    bSum = np.matrix(grads[0][1][0])
-#    wSum = wSum - wSum
-#    bSum = bSum - bSum
-#    print(wSum)
-#    print(grads[0])
-    for grad in grads[1:]:
-        wSum = wSum + np.matrix(grad[0][0])
-        bSum = bSum + np.matrix(grad[1][0])
-    wAvg = wSum / len(grads)
-    bAvg = bSum / len(grads)
+#    #empty matrix of right sizes
+#    #print(grads[0][0])
+##    print("SPACE")
+#    wSum = np.matrix(grads[0][0])
+#    bSum = np.matrix(grads[0][1])
+##    wSum = wSum - wSum
+##    bSum = bSum - bSum
+##    print(wSum)
+##    print(grads[0])
+#    for grad in grads[1:]:
+#        wSum = wSum + np.matrix(grad[0])
+#        bSum = bSum + np.matrix(grad[1])
     
+#    print("test")
+#    wAvg = wSum / len(grads)
+#    bAvg = bSum / len(grads)
+    wAvg = grads[0][0]
+    bAvg = grads[0][1]
+    for L in range(len(grads[0][0])):
+        for i in range(len(grads[0][0][L])):
+            for j in range(len(grads[0][0][L][i])):
+                wSum = 0
+                for g in range(len(grads)):
+                    wSum += grads[g][0][L][i][j]
+                
+                wAvg[L][i][j] = wSum / len(grads)
+    for L in range(len(grads[0][1])):
+        for i in range(len(grads[0][1][L])):
+            bSum = 0
+            for g in range(len(grads)):
+                bSum += grads[g][1][L][i]
+                
+            bAvg[L][i] = bSum / len(grads)
 
-          
+    
+#    for L in range(len(wList)):
+#        for i in range(len(wList[L])):
+#            for j in range(len(wList[i])):
+#                wList[L][i][j] /= len(wList)
+#                
+#    for L in range(len(bList)):
+#        for i in range(len(bList[L])):
+#            bList[L][i] /= len(bList)
+#        
+    print("SPACE!")
+#    wAvg = np.matrix(wAvg)
+#    bAvg = np.matrix(bAvg)
     
     return (wAvg,bAvg)

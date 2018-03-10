@@ -9,32 +9,6 @@ import gzip
 import json
 import numpy as np
 
-
-
-#Helper functions
-def saveToFile(net, file):
-    netList = []
-    for layer in net:
-        netList.append((layer[0].tolist(),layer[1].tolist()))
-    netJson = json.dumps(netList)
-    file = open(file, "w")
-    file.truncate(0)
-    file.write(netJson)
-
-def loadFromFile(file):
-    file = open(file, "r")
-    netJson = file.read()
-    netList = json.loads(netJson)
-    matrixList = []
-    for layer in netList:
-        matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
-    return matrixList
-
-
-#create the inital net
-dimensions = (728,16,16,10)
-#net = NN.newNet(dimensions)
-net = loadFromFile("firstNet.txt")
 #read the MNIST data
 print("Reading MNIST data")
 trainImages = gzip.open("data/train-images-idx3-ubyte.gz", 'rb')
@@ -56,6 +30,45 @@ for i in range(60):
 
 print("Finished reading MNIST data")
 
+#Helper functions
+def saveToFile(net, file):
+    netList = []
+    for layer in net:
+        netList.append((layer[0].tolist(),layer[1].tolist()))
+    netJson = json.dumps(netList)
+    file = open(file, "w")
+    file.truncate(0)
+    file.write(netJson)
+
+def loadFromFile(file):
+    file = open(file, "r")
+    netJson = file.read()
+    netList = json.loads(netJson)
+    matrixList = []
+    for layer in netList:
+        matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
+    return matrixList
+
+
+
+def trainAndUpdate(file, trainSet):
+    net = loadFromFile(file)
+    grad = NN.train(net,trainSet)
+    netList = []
+    for layer in net:
+        netList.append((layer[0].tolist(),layer[1].tolist()))
+    print(netList)
+    
+    """
+    net and grad not in the same format
+    """
+
+#create the inital net
+dimensions = (728,16,16,10)
+#net = NN.newNet(dimensions)
+net = loadFromFile("firstNet.txt")
+
+
 
 
 
@@ -68,7 +81,6 @@ print("Finished reading MNIST data")
 trainSet = []
 for i in range(5):
     trainSet.append((trainData[i]))
-print(NN.train(net,trainSet))
-
+trainAndUpdate("firstNet.txt", trainSet)
 
 saveToFile(net, "firstNet.txt")
