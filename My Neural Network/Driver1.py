@@ -8,6 +8,7 @@ import MyNeuralNet as NN
 import gzip
 import json
 import numpy as np
+import pylab
 
 #read the MNIST data
 print("Reading MNIST data")
@@ -21,7 +22,7 @@ trainLabels.read(8)
 trainData = []
 
 #should be 60000
-for i in range(60):
+for i in range(60000):
     image = []
     for pixle in trainImages.read(728):
         image.append(pixle/255)
@@ -52,22 +53,44 @@ def loadFromFile(file):
 
 
 def trainAndUpdate(file, trainSet):
+    #learning coeficient
+    lC = 2
     net = loadFromFile(file)
-    grad = NN.train(net,trainSet)
+    ret = NN.train(net,trainSet)
+    grad = ret[0]
+    percent = ret[1]
+    #print(percent)
     netList = []
     for layer in net:
         netList.append((layer[0].tolist(),layer[1].tolist()))
-    print(netList)
+#    print(netList)
+        
+    for L in range(len(netList)):
+        
+        #weights
+        for i in range(len(netList[L][0])):
+            for j in range(len(netList[L][0][i])):
+                netList[L][0][i][j] += (-lC) * grad[L][0][i][j]
+        
+        #biases
+        for i in range(len(netList[L][1])):
+            netList[L][1][i][0] += (-lC) * grad[L][1][i]
     
-    """
-    net and grad not in the same format
-    """
+    #converting back to matrix form
+    matrixList = []
+    for layer in netList:
+        matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
+    
+    net = matrixList
+    saveToFile(net, "firstNet2.txt")
+    
+    return percent
 
 #create the inital net
 dimensions = (728,16,16,10)
 #net = NN.newNet(dimensions)
-net = loadFromFile("firstNet.txt")
-
+net = loadFromFile("firstNet2.txt")
+saveToFile(net, "firstNet2.txt")
 
 
 
@@ -77,10 +100,30 @@ net = loadFromFile("firstNet.txt")
 
 #print(NN.run(net, trainData[0][0]))
 #print(trainData[0][1])
+percents = []
+currentIndex = 0
+while True:
+    if currentIndex >= 59000:
+        print("New figure incoming")
+    if currentIndex == 60000:
+           pylab.figure("1")
+           pylab.clf()
+           pylab.title("Perfromance")
+           pylab.xlabel("Per 500 train")
+           pylab.ylabel("Percent")
+           #pylab.ylim(0,maxPop)
+           pylab.plot(range(len(percents)),percents)
+           pylab.show()
+           print("Average Percent: " + str(sum(percents)/len(percents)))
+    trainSet = []
+    
+    for i in range(500):
+        currentIndex = currentIndex % 60000
+        trainSet.append((trainData[i+currentIndex]))
+    percents.append(trainAndUpdate("firstNet2.txt", trainSet))
+    currentIndex += i + 1
+    
+    
+    #saveToFile(net, "firstNet.txt")
 
-trainSet = []
-for i in range(5):
-    trainSet.append((trainData[i]))
-trainAndUpdate("firstNet.txt", trainSet)
 
-saveToFile(net, "firstNet.txt")

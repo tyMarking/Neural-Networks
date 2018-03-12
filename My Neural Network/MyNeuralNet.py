@@ -104,7 +104,11 @@ def train(net, trainSet):
     
     #final grads list (not averaged)
     grads = []
-        
+    
+    #for manual eval
+    right = 0
+    wrong = 0
+    
     for ins in trainSet:
         #sets inputs in vertical matrix
         a = np.reshape(ins[0], (len(ins[0]),1))
@@ -121,9 +125,20 @@ def train(net, trainSet):
         finalVals = []
         for val in currentVals.tolist():
             finalVals.append(val[0])
+        
+        largest = finalVals[0]
+        largestIndex = 0
+        for i in range(len(finalVals)):
+            if finalVals[i] > largest:
+                largest = finalVals[i]
+                largestIndex = i
+        if largestIndex == ins[1]:
+            right += 1
+        else:
+            wrong += 1
+        
+        
         #backwards prop
-        
-        
         #cost function for initial derivatives
         #C =  * sum(y1-y2)^2
         #dc/dy = -2(y-y)
@@ -142,7 +157,7 @@ def train(net, trainSet):
         weights = []
         biases = []
         for layer in net:
-            weights.append(layer[0].getT().tolist())
+            weights.append(layer[0].tolist())
             biases.append(layer[1].getT().tolist()[0])
         
         """
@@ -219,7 +234,13 @@ def train(net, trainSet):
             newBGrads.append(bLayer)
         bGrads = newBGrads
         """
+        
         grads.append((wGrads, bGrads))
+        
+#        layers = []
+#        for i in range(len(wGrads)):
+#            layers.append((wGrads[i],bGrads[i]))
+#        grads.append(layers)
         
 
     #average the gradiants
@@ -242,6 +263,7 @@ def train(net, trainSet):
 #    bAvg = bSum / len(grads)
     wAvg = grads[0][0]
     bAvg = grads[0][1]
+    
     for L in range(len(grads[0][0])):
         for i in range(len(grads[0][0][L])):
             for j in range(len(grads[0][0][L][i])):
@@ -268,8 +290,13 @@ def train(net, trainSet):
 #        for i in range(len(bList[L])):
 #            bList[L][i] /= len(bList)
 #        
-    print("SPACE!")
+#    print("SPACE!")
 #    wAvg = np.matrix(wAvg)
 #    bAvg = np.matrix(bAvg)
     
-    return (wAvg,bAvg)
+    
+    finalGrad = []
+    for i in range(len(wAvg)):
+        finalGrad.append((wAvg[i],bAvg[i]))
+    
+    return ((finalGrad, (right/(right+wrong))))
