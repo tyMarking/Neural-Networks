@@ -82,15 +82,15 @@ def trainAndUpdate(file, trainSet):
         matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
     
     net = matrixList
-    saveToFile(net, "firstNet2.txt")
+    saveToFile(net, file)
     
     return percent
 
 #create the inital net
 dimensions = (728,16,16,10)
-#net = NN.newNet(dimensions)
-net = loadFromFile("firstNet2.txt")
-saveToFile(net, "firstNet2.txt")
+net = NN.newNet(dimensions)
+#net = loadFromFile("firstNet2.txt")
+saveToFile(net, "firstNetSmall2.txt")
 
 
 
@@ -103,13 +103,11 @@ saveToFile(net, "firstNet2.txt")
 percents = []
 currentIndex = 0
 while True:
-    if currentIndex >= 59000:
-        print("New figure incoming")
-    if currentIndex == 60000:
+    if currentIndex == 1:
            pylab.figure("1")
            pylab.clf()
            pylab.title("Perfromance")
-           pylab.xlabel("Per 500 train")
+           pylab.xlabel("Per train")
            pylab.ylabel("Percent")
            #pylab.ylim(0,maxPop)
            pylab.plot(range(len(percents)),percents)
@@ -117,10 +115,10 @@ while True:
            print("Average Percent: " + str(sum(percents)/len(percents)))
     trainSet = []
     
-    for i in range(500):
-        currentIndex = currentIndex % 60000
+    for i in range(1):
+        currentIndex = currentIndex % 1
         trainSet.append((trainData[i+currentIndex]))
-    percents.append(trainAndUpdate("firstNet2.txt", trainSet))
+    percents.append(trainAndUpdate("firstNetSmall2.txt", trainSet))
     currentIndex += i + 1
     
     

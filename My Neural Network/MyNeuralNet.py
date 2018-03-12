@@ -54,7 +54,7 @@ def newNet(dimensions):
         #forming weight matrix
         rands = []
         for j in range(prevNodes*dim):
-            rands.append(random.gauss(0, 0.5))
+            rands.append(random.gauss(0, 2))
         rands = np.reshape(rands, (dim,prevNodes))
         weights = np.matrix(rands)
         
