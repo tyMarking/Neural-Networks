@@ -5,10 +5,21 @@ Created on Sat Feb 24 14:16:22 2018
 @author: Ty
 """
 import MyNeuralNet as NN
+#stuff
+
+import 2ndNeuralNet as net2
+
 import gzip
 import json
 import numpy as np
 import pylab
+
+
+
+
+net = NN2.newNet(3,2,1)
+net.train(net, [([1,2,3],5)])
+
 
 #read the MNIST data
 print("Reading MNIST data")

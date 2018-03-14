@@ -225,6 +225,7 @@ def train(net, trainSet):
                 bGrads[L][i] = bGrad
             
             prevAGrads = aGrads
+            
         """  
         newBGrads = []
         for bGrad in bGrads:
