@@ -65,7 +65,7 @@ def loadFromFile(file):
 
 def trainAndUpdate(file, trainSet):
     #learning coeficient
-    lC = 2
+    lC = 0.1
     net = loadFromFile(file)
     ret = NN.train(net,trainSet)
     grad = ret[0]
@@ -100,8 +100,8 @@ def trainAndUpdate(file, trainSet):
 #create the inital net
 dimensions = (728,16,16,10)
 net = NN.newNet(dimensions)
-#net = loadFromFile("firstNet2.txt")
-saveToFile(net, "firstNetSmall2.txt")
+#net = loadFromFile("firstNetSmall2.txt")
+saveToFile(net, "firstNetSmall4.txt")
 
 
 
@@ -114,7 +114,7 @@ saveToFile(net, "firstNetSmall2.txt")
 percents = []
 currentIndex = 0
 while True:
-    if currentIndex == 1:
+    if currentIndex == 100:
            pylab.figure("1")
            pylab.clf()
            pylab.title("Perfromance")
@@ -126,10 +126,10 @@ while True:
            print("Average Percent: " + str(sum(percents)/len(percents)))
     trainSet = []
     
-    for i in range(1):
-        currentIndex = currentIndex % 1
+    for i in range(100):
+        currentIndex = currentIndex % 100
         trainSet.append((trainData[i+currentIndex]))
-    percents.append(trainAndUpdate("firstNetSmall2.txt", trainSet))
+    percents.append(trainAndUpdate("firstNetSmall4.txt", trainSet))
     currentIndex += i + 1
     
     
