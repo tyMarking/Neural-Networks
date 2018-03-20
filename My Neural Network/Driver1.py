@@ -17,8 +17,8 @@ import pylab
 
 
 
-net = NN2.newNet((3,2,10))
-NN2.train(net, [([1,2,3],5)])
+net = NN2.newNet((3,2,4))
+NN2.train(net, [([1,2,3],2)])
 
 
 #read the MNIST data

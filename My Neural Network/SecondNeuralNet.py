@@ -28,6 +28,16 @@ def dsigList(x):
         ret.append(1-z)*z
     return ret
 
+def dSig(x):
+    xList = x.tolist()
+    newList = []
+    for subList in xList:
+        newSubList = []
+        for item in subList:
+            sigX = (1/(1+math.exp(-item)))
+            newSubList.append(sigX * (1 - sigX))
+        newList.append(newSubList)
+    return np.matrix(newList)
 
 """ New Net
 precondition: dimensions is an array of form (inputs, L1, L2... Ln, outputs). Length must be at least 3
@@ -101,38 +111,67 @@ def train(net, trainSet):
         print(activations)
 
         aStore = []
+        zStore = []
         aStore.append(activations)
         for layer in net:
-            activations = sigmoid(layer[0] * activations + layer[1])
+            oneZ = layer[0] * activations + layer[1]
+            activations = sigmoid(oneZ)
             aStore.append(activations)
-            
+            zStore.append(oneZ)
             
         aList = activations.getT().tolist()
+        aList = aList[0]
         maxIndex = 0
         for i in range(len(aList)):
-            aList[i] = aList[i][0]
             if aList[i] > aList[maxIndex]:
                 maxIndex = i
-                
-        correct= False
         
-        correct = (label == aList[maxIndex])
-        if (correct):
+        
+        if (label == aList[maxIndex]):
             right += 1
         else:
             wrong += 1
         
+        """ BACKPROPIGATION """
+        
+        """
+        #Initial partial gradiants of the output neurons
         initGs = []
         for i in range(len(activations)):
             if i == label:
                 y = 1
             else:
                 y = 0
-            initGs.append(2*(y-activations[i]))
+            g = (-1*(y-aList[i])) / (1 + math.exp(-aList[i]))
 
-    
+            initGs.append(g)
         print(aList)
+        print(initGs)
+        """
+        
+        """
+        for node i in layer L-1
+        for node j in layer L
+        compute inter weight grad
+        compute part-activation grad
+        average part-activations
+        
+        compute bias somewhere?
+        
+        """
+        
+#        for L in reversed(range(len(aStore))):
+        
+        ys = [0] * len(aList)
+        ys[label] = 1
+        
+        y = np.matrix(ys).getT()
+        
+        error = np.multiply((aStore[-1]-y), dSig(zStore[-1]))
+        print("JIIIII")
+        print(error)
             
+        
         
 
 
