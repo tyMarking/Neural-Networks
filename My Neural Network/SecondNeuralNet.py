@@ -89,7 +89,8 @@ def run(net, inputs):
 """
 def train(net, trainSet):
     gs = []
-    
+    right = 0
+    wrong = 0
 
     for trainer in trainSet:
         image = trainer[0]
@@ -99,6 +100,40 @@ def train(net, trainSet):
         activations = np.matrix(image).getT()
         print(activations)
 
+        aStore = []
+        aStore.append(activations)
+        for layer in net:
+            activations = sigmoid(layer[0] * activations + layer[1])
+            aStore.append(activations)
+            
+            
+        aList = activations.getT().tolist()
+        maxIndex = 0
+        for i in range(len(aList)):
+            aList[i] = aList[i][0]
+            if aList[i] > aList[maxIndex]:
+                maxIndex = i
+                
+        correct= False
+        
+        correct = (label == aList[maxIndex])
+        if (correct):
+            right += 1
+        else:
+            wrong += 1
+        
+        initGs = []
+        for i in range(len(activations)):
+            if i == label:
+                y = 1
+            else:
+                y = 0
+            initGs.append(2*(y-activations[i]))
+
+    
+        print(aList)
+            
+        
 
 
 

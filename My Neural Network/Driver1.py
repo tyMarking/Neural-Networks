@@ -7,7 +7,7 @@ Created on Sat Feb 24 14:16:22 2018
 import MyNeuralNet as NN
 #stuff
 
-import 2ndNeuralNet as net2
+import SecondNeuralNet as NN2
 
 import gzip
 import json
@@ -17,8 +17,8 @@ import pylab
 
 
 
-net = NN2.newNet(3,2,1)
-net.train(net, [([1,2,3],5)])
+net = NN2.newNet((3,2,10))
+NN2.train(net, [([1,2,3],5)])
 
 
 #read the MNIST data
