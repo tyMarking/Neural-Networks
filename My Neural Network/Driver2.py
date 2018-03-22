@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 24 14:16:22 2018
+Created on Thu Mar 22 10:39:15 2018
 
-@author: Ty
+@author: 136029
 """
-import MyNeuralNet as NN
-#stuff
+
 
 import SecondNeuralNet as NN2
 
@@ -14,12 +13,6 @@ import json
 import numpy as np
 import pylab
 
-
-
-
-#net = NN2.newNet((3,2,4))
-#grad, percent = NN2.train(net, [([1,2,3],2), ([2,3,4],1)])
-#print(percent)
 
 #read the MNIST data
 print("Reading MNIST data")
@@ -33,7 +26,7 @@ trainLabels.read(8)
 trainData = []
 
 #should be 60000
-for i in range(60000):
+for i in range(100):
     image = []
     for pixle in trainImages.read(784):
         image.append(pixle/255)
@@ -63,51 +56,46 @@ def loadFromFile(file):
 
 
 
-def trainAndUpdate(file, trainSet):
-    #learning coeficient
-    lC = 0.1
-    net = loadFromFile(file)
-    ret = NN.train(net,trainSet)
-    grad = ret[0]
-    percent = ret[1]
-    #print(percent)
-    netList = []
-    for layer in net:
-        netList.append((layer[0].tolist(),layer[1].tolist()))
-#    print(netList)
-        
-    for L in range(len(netList)):
-        
-        #weights
-        for i in range(len(netList[L][0])):
-            for j in range(len(netList[L][0][i])):
-                netList[L][0][i][j] += (lC) * grad[L][0][i][j]
-        
-        #biases
-        for i in range(len(netList[L][1])):
-            netList[L][1][i][0] += (lC) * grad[L][1][i]
+
+file = "2ndNNv.1.json"
+
+net = NN2.newNet((784,16,16,10))
+#grad, percent = NN2.train(net, [([1,2,3],2), ([2,3,4],1)])
+#print(percent)
+saveToFile(net,file)
+
+
+
+percents = []
+currentIndex = 0
+while True:
+    if currentIndex == 100:
+           pylab.figure("1")
+           pylab.clf()
+           pylab.title("Perfromance")
+           pylab.xlabel("Per train")
+           pylab.ylabel("Percent")
+           #pylab.ylim(0,maxPop)
+           pylab.plot(range(len(percents)),percents)
+           pylab.show()
+           #print("Average Percent: " + str(sum(percents)/len(percents)))
+           print("Current Percent: " +  str(percents[-1]))
+    trainSet = []
     
-    #converting back to matrix form
-    matrixList = []
-    for layer in netList:
-        matrixList.append((np.matrix(layer[0]),np.matrix(layer[1])))
+    for i in range(100):
+        currentIndex = currentIndex % 100
+        trainSet.append((trainData[i+currentIndex]))
     
-    net = matrixList
+    currentIndex += i + 1
+    
+    net, percent = NN2.train(net, trainSet)
+    percents.append(percent)
+    
     saveToFile(net, file)
-    
-    return percent
-
-#create the inital net
-dimensions = (784,16,16,10)
-net = NN.newNet(dimensions)
-#net = loadFromFile("firstNetSmall2.txt")
-saveToFile(net, "firstNetSmall4.txt")
 
 
 
-
-
-
+"""
 
 #print(NN.run(net, trainData[0][0]))
 #print(trainData[0][1])
@@ -135,4 +123,4 @@ while True:
     
     #saveToFile(net, "firstNet.txt")
 
-
+"""

@@ -108,7 +108,7 @@ def train(net, trainSet):
         
         """ FORWARD PROPIGATION """
         activations = np.matrix(image).getT()
-        print(activations)
+#        print(activations)
 
         aStore = []
         zStore = []
@@ -127,7 +127,7 @@ def train(net, trainSet):
                 maxIndex = i
         
         
-        if (label == aList[maxIndex]):
+        if (label == maxIndex):
             right += 1
         else:
             wrong += 1
@@ -167,29 +167,66 @@ def train(net, trainSet):
         
         y = np.matrix(ys).getT()
         
-        print(aStore[-1])
+#        print(aStore[-1])
         errorL = np.multiply((aStore[-1]-y), dSig(zStore[-1]))
-        errorStore = [[0]]*len(net)
+        errorStore = [[0]]*(len(net))
         errorStore[-1] = errorL
-        print("Error")
-        print(errorL)
+#        print("Error")
+#        print(errorL)
         
         gW = []
         for l in reversed(range(len(net)-1)):
             errorStore[l] = np.multiply((net[l+1][0].getT() * errorStore[l+1]), dSig(zStore[l]))
-            gW.append(aStore[l]*errorStore[l+1].getT())
-        print(errorStore)
+            gW.append(aStore[l+1]*errorStore[l+1].getT())
+            
+        gW.append(aStore[0]*errorStore[0].getT())
+#        print(errorStore)
         
-        gW = reversed(gW)
-        
+        #reverses gW
+        gW = gW[::-1]
         #bias gradiant = erorr
         gB = errorStore
         
-        gradStore.append((gW,gB))
+#        layers = []
+#        for wLayer, bLayer in gW, gB:
+#            layers.append( (wLayer.getT(), bLayer) )    
+#        gradStore.append(layers)
+        grad = []
+        for i in range(len(gW)):
+            grad.append( (gW[i].getT(), gB[i]) )
+        
+        gradStore.append(grad)
         
             
-    print("Grad Store")
-    print(gradStore)   
+#    print("Grad Store")
+#    print(gradStore)   
+    
+    
+    #average grad Store
+    avgGrad = []
+    
+    #layer
+    for l in range(len(gradStore[0])):
+        
+        #weights
+        avgW = gradStore[0][l][0]
+        for i in range(1, len(gradStore)):
+            avgW = avgW + gradStore[i][l][0]
+        avgW = avgW / len(gradStore)
+        
+        #biases
+        avgB = gradStore[0][l][1]
+        for i in range(1, len(gradStore)):
+            avgB = avgB + gradStore[i][l][1]
+        avgB = avgB / len(gradStore)
+            
+        avgGrad.append( (avgW,avgB) )
 
-
-
+#    print("Average Gradiant")
+#    print(avgGrad)
+    newNet = []
+    for l in range(len(net)):
+        newNet.append( ( (net[l][0] - avgGrad[l][0]), (net[l][1] - avgGrad[l][1]) ) )
+          
+    #print(newNet)   
+    return (newNet, (right/(right+wrong)))
