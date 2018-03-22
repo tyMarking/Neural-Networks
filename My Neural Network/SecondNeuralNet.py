@@ -98,7 +98,7 @@ def run(net, inputs):
     
 """
 def train(net, trainSet):
-    gs = []
+    gradStore = []
     right = 0
     wrong = 0
 
@@ -167,12 +167,29 @@ def train(net, trainSet):
         
         y = np.matrix(ys).getT()
         
-        error = np.multiply((aStore[-1]-y), dSig(zStore[-1]))
-        print("JIIIII")
-        print(error)
+        print(aStore[-1])
+        errorL = np.multiply((aStore[-1]-y), dSig(zStore[-1]))
+        errorStore = [[0]]*len(net)
+        errorStore[-1] = errorL
+        print("Error")
+        print(errorL)
+        
+        gW = []
+        for l in reversed(range(len(net)-1)):
+            errorStore[l] = np.multiply((net[l+1][0].getT() * errorStore[l+1]), dSig(zStore[l]))
+            gW.append(aStore[l]*errorStore[l+1].getT())
+        print(errorStore)
+        
+        gW = reversed(gW)
+        
+        #bias gradiant = erorr
+        gB = errorStore
+        
+        gradStore.append((gW,gB))
+        
             
-        
-        
+    print("Grad Store")
+    print(gradStore)   
 
 
 
