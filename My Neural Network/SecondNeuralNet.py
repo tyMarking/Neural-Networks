@@ -64,7 +64,7 @@ def newNet(dimensions):
         #forming biase matrix
         rands = []
         for j in range(dim):
-            rands.append(random.gauss(0, 0.5))
+            rands.append(random.gauss(0, 1))
         rands = np.reshape(rands, (dim,1))
         biases = np.matrix(rands)
         
@@ -97,7 +97,7 @@ def run(net, inputs):
     trainset = [(image, label),(img,lbl)...]
     
 """
-def train(net, trainSet):
+def train(net, trainSet, lCoeficiant):
     gradStore = []
     right = 0
     wrong = 0
@@ -226,7 +226,7 @@ def train(net, trainSet):
 #    print(avgGrad)
     newNet = []
     for l in range(len(net)):
-        newNet.append( ( (net[l][0] - avgGrad[l][0]), (net[l][1] - avgGrad[l][1]) ) )
+        newNet.append( ( (net[l][0] - lCoeficiant*avgGrad[l][0]), (net[l][1] - lCoeficiant*avgGrad[l][1]) ) )
           
     #print(newNet)   
     return (newNet, (right/(right+wrong)))
